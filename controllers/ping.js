@@ -3,6 +3,8 @@ const router = express.Router();
 
 const Ping = require('../models/ping');
 
+const { addToSchedule } = require('../cron.js');
+
 router.post('/add', async(req, res) => {
     try {
         const { name, url, interval } = req.body;
@@ -13,6 +15,7 @@ router.post('/add', async(req, res) => {
             interval
         });
         await ping.save()
+        addToSchedule(ping);
         res.status(200).json({
             message: 'Ping added',
             status: 200
