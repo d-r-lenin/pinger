@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+
 const { MONGO_URI } = process.env;
 const database = 'pinger';
 const connectToMongo = () => {
