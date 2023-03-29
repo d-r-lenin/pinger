@@ -3,6 +3,26 @@ const axios = require('axios');
 
 const Ping = require("./models/ping");
 
+
+
+function minToAst(min){
+    let  m, h, d, M, w;
+    m = min % 60;
+    h = Math.floor(min / 60) % 24;
+    d = Math.floor(min / 60 / 24) % 30;
+    M = Math.floor(min / 60 / 24 / 30) % 12;
+    w = "*"
+
+    m = m == 0 ? "*": `*/${m}`;
+    h = h == 0 ? "*": `*/${h}`;
+    d = d == 0 ? "*": `*/${d}`;
+    M = M == 0 ? "*": `*/${M}`;
+
+
+    return `${m} ${h} ${d} ${M} ${w}`;
+}
+
+
 function scheduleCronJob(duration, callback, ...args) {
     cron.schedule(duration, () => {
         callback(...args);
@@ -10,7 +30,9 @@ function scheduleCronJob(duration, callback, ...args) {
 }   
 
 async function addToSchedule (ping){
-    scheduleCronJob(`*/${ping.interval} * * * *`, () => {
+    const duration = minToAst(ping.interval);
+    console.log(duration);
+    scheduleCronJob( duration , () => {
         axios.get(ping.url).then(response => {
             console.log(new Date() + ping.name + " "+ response.status);
         }).catch(error => {
@@ -27,6 +49,7 @@ module.exports = {
             const pings = await Ping.find();
             pings.forEach(ping => {
                 addToSchedule(ping);
+                // console.log(ping)
             });
         }catch(error){
             console.log(error.message);
@@ -37,3 +60,4 @@ module.exports = {
     addToSchedule
     
 };
+
